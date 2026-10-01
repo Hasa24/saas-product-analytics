@@ -1,0 +1,32 @@
+{
+  "overall_churn_rate": 9.7,
+  "total_users": 1200,
+  "churn_by_feature_depth": {
+    "0": 40.0,
+    "1": 24.2,
+    "2": 15.2,
+    "3": 6.2,
+    "4": 2.7,
+    "5": 0.0
+  },
+  "feature_adoption_rate": {
+    "Dashboard": 90.7,
+    "Reports": 66.0,
+    "Integrations": 44.3,
+    "Automation": 37.2,
+    "Team Collab": 47.2
+  },
+  "churn_by_engagement_segment": {
+    "Low": 14.7,
+    "Medium": 9.9,
+    "High": 3.4
+  },
+  "retention_by_cohort": {
+    "2026-01": 91.6,
+    "2026-02": 90.4,
+    "2026-03": 90.5,
+    "2026-04": 89.4,
+    "2026-05": 90.2,
+    "2026-06": 88.8
+  }
+}

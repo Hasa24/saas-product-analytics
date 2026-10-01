@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Feature Depth & Churn — SaaS Product Analytics</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0B1220; --surface:#121B2E; --surface2:#16213A;
+    --text:#E7EAF0; --dim:#8C97AD; --border:rgba(255,255,255,.08);
+    --warn:#F0A356; --good:#4FD1C5; --line:#2A3550;
+  }
+  html{scroll-padding-top:env(safe-area-inset-top,0px);}
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:'IBM Plex Sans',system-ui,sans-serif;
+    padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:920px; margin:0 auto; padding:56px 24px 80px;}
+  h1,h2{font-family:'Fraunces',serif; font-weight:600; margin:0;}
+  header{margin-bottom:48px;}
+  .kicker{font-size:.8rem; color:var(--dim); letter-spacing:.02em; margin-bottom:10px;}
+  h1{font-size:2.1rem; line-height:1.2; max-width:640px;}
+  .sub{color:var(--dim); margin-top:14px; font-size:.95rem; max-width:560px; line-height:1.6;}
+
+  .hero{
+    display:flex; align-items:baseline; gap:28px; flex-wrap:wrap;
+    margin:36px 0 8px; padding:28px; background:var(--surface);
+    border:1px solid var(--border); border-radius:4px;
+  }
+  .hero .stat{font-family:'IBM Plex Mono',monospace; font-size:2.6rem; font-weight:500;}
+  .hero .stat.from{color:var(--warn);}
+  .hero .arrow{color:var(--dim); font-size:1.4rem;}
+  .hero .stat.to{color:var(--good);}
+  .hero .cap{color:var(--dim); font-size:.85rem; max-width:280px; line-height:1.5;}
+
+  section{margin-top:52px;}
+  .section-head{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:18px; gap:12px; flex-wrap:wrap;}
+  .section-head h2{font-size:1.25rem;}
+  .section-head .note{color:var(--dim); font-size:.82rem;}
+
+  .panel{background:var(--surface); border:1px solid var(--border); border-radius:4px; padding:24px;}
+
+  /* churn-by-depth bars */
+  .bars{display:flex; align-items:flex-end; gap:14px; height:180px; margin-top:8px;}
+  .bar-col{flex:1; display:flex; flex-direction:column; align-items:center; height:100%;}
+  .bar-track{flex:1; display:flex; align-items:flex-end; width:100%; justify-content:center;}
+  .bar{width:100%; max-width:52px; background:linear-gradient(180deg,var(--warn),#c97c34); border-radius:3px 3px 0 0; position:relative;}
+  .bar-val{font-family:'IBM Plex Mono',monospace; font-size:.85rem; margin-bottom:8px; color:var(--text);}
+  .bar-label{color:var(--dim); font-size:.78rem; margin-top:10px;}
+
+  /* horizontal feature bars */
+  .hbar-row{display:grid; grid-template-columns:130px 1fr 52px; align-items:center; gap:14px; margin:14px 0;}
+  .hbar-row .name{font-size:.88rem; color:var(--text);}
+  .hbar-track{height:10px; background:var(--line); border-radius:5px; overflow:hidden;}
+  .hbar-fill{height:100%; background:linear-gradient(90deg,var(--good),#2f9e93); border-radius:5px;}
+  .hbar-row .val{font-family:'IBM Plex Mono',monospace; font-size:.82rem; text-align:right; color:var(--dim);}
+
+  /* segment grid */
+  .seg-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:16px;}
+  .seg-card{background:var(--surface2); border:1px solid var(--border); border-radius:4px; padding:18px; text-align:center;}
+  .seg-card .n{font-family:'IBM Plex Mono',monospace; font-size:1.7rem; margin-top:6px;}
+  .seg-card .n.low{color:var(--warn);} .seg-card .n.mid{color:#D9C168;} .seg-card .n.high{color:var(--good);}
+  .seg-card .l{color:var(--dim); font-size:.78rem; text-transform:uppercase; letter-spacing:.04em;}
+
+  /* cohort sparkline */
+  svg.spark{width:100%; height:120px; overflow:visible;}
+  .spark-dot{fill:var(--good);}
+  .spark-label{font-family:'IBM Plex Mono',monospace; font-size:.68rem; fill:var(--dim);}
+
+  footer{margin-top:64px; padding-top:24px; border-top:1px solid var(--border); color:var(--dim); font-size:.8rem; line-height:1.7;}
+
+  @media (max-width:640px){
+    .hero{flex-direction:column; gap:10px;}
+    .seg-grid{grid-template-columns:1fr;}
+    .bars{gap:8px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="kicker">Product Analytics · Synthetic Dataset</div>
+    <h1>Where SaaS users decide to stay</h1>
+    <p class="sub">1,200 simulated signups across six monthly cohorts, tracked for feature adoption, engagement, and churn. Built to test one question: does depth of feature use predict retention?</p>
+  </header>
+
+  <div class="hero">
+    <div><div class="stat from">40%</div></div>
+    <div class="arrow">→</div>
+    <div><div class="stat to">2.7%</div></div>
+    <div class="cap">Churn rate for users on zero features vs. users active in four or more. Adoption depth is the strongest churn predictor in this dataset.</div>
+  </div>
+
+  <section>
+    <div class="section-head">
+      <h2>Churn rate by features adopted</h2>
+      <span class="note">% churned, by number of distinct features used</span>
+    </div>
+    <div class="panel">
+      <div class="bars" id="depthBars"></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>Feature adoption</h2>
+      <span class="note">% of all users who used each feature at least once</span>
+    </div>
+    <div class="panel" id="featureBars"></div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>Churn by engagement segment</h2>
+      <span class="note">Users split into low / medium / high engagement terciles</span>
+    </div>
+    <div class="seg-grid">
+      <div class="seg-card"><div class="l">Low engagement</div><div class="n low">14.7%</div></div>
+      <div class="seg-card"><div class="l">Medium engagement</div><div class="n mid">9.9%</div></div>
+      <div class="seg-card"><div class="l">High engagement</div><div class="n high">3.4%</div></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>Retention by signup cohort</h2>
+      <span class="note">% retained, Jan–Jun 2026 cohorts</span>
+    </div>
+    <div class="panel">
+      <svg class="spark" id="cohortSpark" viewBox="0 0 800 120"></svg>
+    </div>
+  </section>
+
+  <footer>
+    Dataset is synthetic, generated with a pandas/numpy script to reflect adoption and retention patterns typical of B2B SaaS products. Analysis (cohort retention, feature adoption rate, churn-by-engagement-segment) computed in Python; this page renders the precomputed summary. Full generation and analysis scripts on GitHub.
+  </footer>
+
+</div>
+
+<script>
+  const depth = {"0":40.0,"1":24.2,"2":15.2,"3":6.2,"4":2.7,"5":0.0};
+  const depthEl = document.getElementById('depthBars');
+  const maxDepth = 40;
+  Object.entries(depth).forEach(([k,v])=>{
+    const col = document.createElement('div');
+    col.className = 'bar-col';
+    col.innerHTML = `
+      <div class="bar-val">${v}%</div>
+      <div class="bar-track"><div class="bar" style="height:${Math.max(v/maxDepth*100,3)}%"></div></div>
+      <div class="bar-label">${k} feature${k==1?'':'s'}</div>`;
+    depthEl.appendChild(col);
+  });
+
+  const features = {"Dashboard":90.7,"Reports":66.0,"Team Collab":47.2,"Integrations":44.3,"Automation":37.2};
+  const fEl = document.getElementById('featureBars');
+  Object.entries(features).forEach(([name,val])=>{
+    const row = document.createElement('div');
+    row.className = 'hbar-row';
+    row.innerHTML = `
+      <div class="name">${name}</div>
+      <div class="hbar-track"><div class="hbar-fill" style="width:${val}%"></div></div>
+      <div class="val">${val}%</div>`;
+    fEl.appendChild(row);
+  });
+
+  const cohorts = [["Jan",91.6],["Feb",90.4],["Mar",90.5],["Apr",89.4],["May",90.2],["Jun",88.8]];
+  const svg = document.getElementById('cohortSpark');
+  const w=800,h=120,pad=30, min=87, max=93;
+  const x = i => pad + i*((w-2*pad)/(cohorts.length-1));
+  const y = v => h-20 - ((v-min)/(max-min))*(h-40);
+  let path = cohorts.map((c,i)=>`${i===0?'M':'L'} ${x(i)} ${y(c[1])}`).join(' ');
+  const ns='http://www.w3.org/2000/svg';
+  const p=document.createElementNS(ns,'path');
+  p.setAttribute('d',path); p.setAttribute('fill','none');
+  p.setAttribute('stroke','#4FD1C5'); p.setAttribute('stroke-width','2.5');
+  svg.appendChild(p);
+  cohorts.forEach((c,i)=>{
+    const dot=document.createElementNS(ns,'circle');
+    dot.setAttribute('cx',x(i)); dot.setAttribute('cy',y(c[1])); dot.setAttribute('r',4);
+    dot.setAttribute('class','spark-dot');
+    svg.appendChild(dot);
+    const lbl=document.createElementNS(ns,'text');
+    lbl.setAttribute('x',x(i)); lbl.setAttribute('y',h-2); lbl.setAttribute('text-anchor','middle');
+    lbl.setAttribute('class','spark-label'); lbl.textContent=c[0];
+    svg.appendChild(lbl);
+    const val=document.createElementNS(ns,'text');
+    val.setAttribute('x',x(i)); val.setAttribute('y',y(c[1])-10); val.setAttribute('text-anchor','middle');
+    val.setAttribute('class','spark-label'); val.setAttribute('fill','#E7EAF0'); val.textContent=c[1]+'%';
+    svg.appendChild(val);
+  });
+</script>
+</body>
+</html>
